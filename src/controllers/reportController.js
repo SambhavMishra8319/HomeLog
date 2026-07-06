@@ -1,0 +1,4 @@
+import{INR}from'../utils/format';
+export function enrichTenants(tenants,payments,month){return tenants.filter(t=>t.status!=='Left').map(t=>{const bill=Number(t.rent||0)+Number(t.maintenance||0);const paid=payments.filter(p=>(p.tenantPhone===t.phone||p.tenantName===t.name)&&p.month===month).reduce((s,p)=>s+Number(p.amount||0),0);const due=Math.max(bill-paid,0);return{...t,monthlyBill:bill,paid,due,payStatus:due===0?'Paid':paid>0?'Partial':'Pending'}})}
+export function totals(enriched,expenses){const expected=enriched.reduce((s,t)=>s+t.monthlyBill,0),collected=enriched.reduce((s,t)=>s+t.paid,0),pending=enriched.reduce((s,t)=>s+t.due,0),expense=expenses.reduce((s,e)=>s+Number(e.amount||0),0);return{expected,collected,pending,expense,profit:collected-expense}}
+export function reminder(t){return`Hi ${t.name}, your rent due is ${INR.format(t.due)}. Please pay soon. - GharRent Manager`}
